@@ -105,6 +105,7 @@ const ProductList: FC = () => {
                         </div>
                         <div>
                             <Pagination
+                                loading={loading}
                                 next={pagination.next}
                                 prev={pagination.prev}
                                 onNextClick={incrementPage}
@@ -121,6 +122,7 @@ const ProductList: FC = () => {
                 </div>
                 <div>
                     <Pagination
+                        loading={loading}
                         next={pagination.next}
                         prev={pagination.prev}
                         onNextClick={incrementPage}

@@ -3,7 +3,7 @@ import { FC } from "react";
 import { PaginationUIInterface, UrlType } from "../../interface/common";
 
 
-const Pagination: FC<PaginationUIInterface> = ({ next, prev, onNextClick, onPrevClick }) => {
+const Pagination: FC<PaginationUIInterface> = ({ loading, next, prev, onNextClick, onPrevClick }) => {
 
     const handlePrev = () => {
         onPrevClick?.(prev);
@@ -20,11 +20,11 @@ const Pagination: FC<PaginationUIInterface> = ({ next, prev, onNextClick, onPrev
         >
             <Button
                 onClick={handlePrev}
-                disabled={!prev}
+                disabled={!prev || loading}
             >Prev</Button>
             <Button
                 onClick={handleNext}
-                disabled={!next}
+                disabled={!next || loading}
             >
                 Next
             </Button>

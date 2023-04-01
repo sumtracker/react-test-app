@@ -1,6 +1,7 @@
 export type UrlType = string | null;
 
 interface PaginationUIInterface {
+  loading: boolean,
   next: UrlType;
   prev: UrlType;
   onPrevClick?: (prev: UrlType) => void;
