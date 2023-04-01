@@ -7,6 +7,8 @@ import { PaginateDataType, UrlType } from "../../../interface/common";
 import { listProducts } from "../../../services/products";
 import { getQueryFromUrl } from "../../../utils/common.utils";
 import ProductsTable from "./components/products.table";
+import { Input } from "antd";
+import { SearchByContactDropdown } from "./components/contacts.list";
 
 
 const fixedListParams = {
@@ -78,6 +80,15 @@ const ProductList: FC = () => {
         let query = getQueryFromUrl(prev);
         loadProducts(query);
     }
+
+    const onChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        // pass search query to the dropdown component
+    };
+
+    const onFocus = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        // show the contacts list dropdown
+    };
+
     return (
         <>
             <div style={{ marginBottom: '1rem' }}>
@@ -86,6 +97,9 @@ const ProductList: FC = () => {
                 >
                     Products
                 </Heading>
+                <Input placeholder="Search" allowClear onChange={onChange} onFocus={onFocus} />
+                <SearchByContactDropdown query="" />
+
             </div>
             <div
                 style={{
