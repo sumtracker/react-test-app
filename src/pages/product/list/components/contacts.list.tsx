@@ -1,6 +1,8 @@
 import { Input, List } from "antd";
 import { useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
+import { useDebounce } from "usehooks-ts";
+import { SEARCH_DEBOUNCE_MILLIS } from "../../../../constants/app.constants";
 import { listContacts } from "../../../../services/contacts";
 
 
@@ -14,13 +16,15 @@ export const SearchByContact = () => {
 
     const [searchParams, setSearchParams] = useSearchParams();
     const [searchQuery, setSearchQuery] = useState<string>("");
+    const debouncedSearchQuery = useDebounce<string>(searchQuery, SEARCH_DEBOUNCE_MILLIS);
+
     const [loading, setLoading] = useState(false);
     const [contacts, setContacts] = useState<Array<Contact>>([]);
     const [showSearchResults, setShowSearchResults] = useState<boolean>(false);
 
     useEffect(() => {
-        loadContacts(searchQuery);
-    }, [searchQuery])
+        loadContacts(debouncedSearchQuery);
+    }, [debouncedSearchQuery])
 
     const loadContacts = async (searchQuery?: string) => {
         setLoading(true);
