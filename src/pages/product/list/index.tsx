@@ -1,4 +1,5 @@
 import { FC, useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import ResultString from "../../../components/content/result.content";
 import Heading from "../../../components/heading/basic.heading";
 import Pagination from "../../../components/pagination/basic.pagination";
@@ -6,18 +7,19 @@ import { PAGINATION_LIMIT } from "../../../constants/app.constants";
 import { PaginateDataType, UrlType } from "../../../interface/common";
 import { listProducts } from "../../../services/products";
 import { getQueryFromUrl } from "../../../utils/common.utils";
+import { SearchByContact } from "./components/contacts.list";
 import ProductsTable from "./components/products.table";
-import { Input } from "antd";
-import { SearchByContactDropdown } from "./components/contacts.list";
 
 
 const fixedListParams = {
     paginate: true
 }
 
-
-
 const ProductList: FC = () => {
+
+    const [params] = useSearchParams();
+    const contact = params.get('contact');
+    const [page, setPage] = useState<number>(parseInt(params.get('page') as string) || 1)
 
     const [products, setProducts] = useState<any[]>([]);
     const [loading, setLoding] = useState<boolean>(false);
@@ -31,12 +33,15 @@ const ProductList: FC = () => {
         limit: PAGINATION_LIMIT
     });
 
+
     useEffect(() => {
         init();
-    }, []);
+    }, [contact, page]);
 
     const init = async () => {
-        loadProducts();
+        const offset = (page - 1) * PAGINATION_LIMIT;
+        const queryParams = { contact, offset };
+        loadProducts(queryParams);
     }
 
     const loadProducts = async (queryParams?: Record<string, any>) => {
@@ -81,14 +86,6 @@ const ProductList: FC = () => {
         loadProducts(query);
     }
 
-    const onChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        // pass search query to the dropdown component
-    };
-
-    const onFocus = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        // show the contacts list dropdown
-    };
-
     return (
         <>
             <div style={{ marginBottom: '1rem' }}>
@@ -97,9 +94,7 @@ const ProductList: FC = () => {
                 >
                     Products
                 </Heading>
-                <Input placeholder="Search" allowClear onChange={onChange} onFocus={onFocus} />
-                <SearchByContactDropdown query="" />
-
+                <SearchByContact />
             </div>
             <div
                 style={{
@@ -142,6 +137,8 @@ const ProductList: FC = () => {
                     <Pagination
                         next={pagination.next}
                         prev={pagination.prev}
+                        onNextClick={handleNext}
+                        onPrevClick={handlePrev}
                     />
                 </div>
             </div>
