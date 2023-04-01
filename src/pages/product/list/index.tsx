@@ -74,7 +74,7 @@ const ProductList: FC = () => {
 
     return (
         <>
-            <div style={{ marginBottom: '1rem' }}>
+            <div style={{ marginBottom: '1rem', display: 'flex', alignItems: 'center' }}>
                 <Heading
                     titleLevel={2}
                 >

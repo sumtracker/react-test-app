@@ -20,11 +20,6 @@ export const SearchByContact = () => {
 
     useEffect(() => {
         loadContacts(searchQuery);
-
-        if (!searchQuery) { // When the search input is cleared (i.e press X), reset the contact query param
-            searchParams.delete("contact");
-            setSearchParams(searchParams);
-        }
     }, [searchQuery])
 
     const loadContacts = async (searchQuery?: string) => {
@@ -43,44 +38,52 @@ export const SearchByContact = () => {
         setLoading(false);
     }
 
+    const onInputFocused = () => { setShowSearchResults(true); }
+
     const onChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        setSearchQuery(e.target.value);
+        const query = e.target.value;
+        setSearchQuery(query);
+        setShowSearchResults(true);
+
+        if (!query) { // When the search input is cleared (i.e press X), reset the contact query param
+            searchParams.delete("contact");
+            setSearchParams(searchParams);
+            setShowSearchResults(false);
+        }
     };
 
-    const onFocus = () => { setShowSearchResults(true); }
-    const onBlur = () => { setShowSearchResults(false); }    // Fix this
-
-    const onSearchResultClick = useCallback((contact: Contact) => {
-        setSearchQuery(contact.companyName);
+    const onSearchResultClick = (contact: Contact) => {
         setSearchParams({ contact: contact.id });
+        setSearchQuery(contact.companyName);
         setShowSearchResults(false);
-    }, []);
+    };
 
     return (
-        <>
+        <div style={{ position: 'relative', overflow: 'visible', marginLeft: '8px', width: '24rem' }}>
             <Input
                 size="middle"
                 placeholder="Search for Supplier"
                 allowClear
                 onChange={onChange}
-                onFocus={onFocus}
-                onBlur={onBlur}
+                onClick={onInputFocused}
                 value={searchQuery} />
 
-            {<List
-                style={{ backgroundColor: 'white', fontSize: '0.4rem', cursor: 'pointer' }}
-                size="small"
-                bordered
-                loading={loading}
-                dataSource={contacts}
-                renderItem={(contact: Contact) => <List.Item onClick={() => { onSearchResultClick(contact) }}>
-                    <>
-                        {contact.code}
-                        <br />
-                        Company: {contact.companyName}
-                    </>
-                </List.Item>}
-            />}
-        </>
+            {showSearchResults && <div style={{ position: 'relative' }}>
+                <List
+                    style={{ position: 'absolute', top: '4px', minWidth: '24rem', backgroundColor: 'white', fontSize: '0.4rem', cursor: 'pointer', zIndex: '10' }}
+                    size="small"
+                    bordered
+                    loading={loading}
+                    dataSource={contacts}
+                    renderItem={(contact: Contact) => <List.Item onClick={() => { onSearchResultClick(contact) }}>
+                        <>
+                            {contact.code}
+                            <br />
+                            Company: {contact.companyName}
+                        </>
+                    </List.Item>}
+                />
+            </div>}
+        </div>
     )
 }
