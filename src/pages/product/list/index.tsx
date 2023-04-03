@@ -1,11 +1,12 @@
 import { FC, useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import ResultString from "../../../components/content/result.content";
 import Heading from "../../../components/heading/basic.heading";
 import Pagination from "../../../components/pagination/basic.pagination";
 import { PAGINATION_LIMIT } from "../../../constants/app.constants";
-import { PaginateDataType, UrlType } from "../../../interface/common";
+import { PaginateDataType } from "../../../interface/common";
 import { listProducts } from "../../../services/products";
-import { getQueryFromUrl } from "../../../utils/common.utils";
+import { SearchByContact } from "./components/contacts.list";
 import ProductsTable from "./components/products.table";
 
 
@@ -13,9 +14,14 @@ const fixedListParams = {
     paginate: true
 }
 
-
-
 const ProductList: FC = () => {
+
+    const [searchParams, setSearchParams] = useSearchParams();
+    const contact = searchParams.get('contact');
+    const page = parseInt(searchParams.get('page') as string) || 1;
+
+    const incrementPage = () => { setSearchParams({ ...searchParams, "page": String(page + 1) }); }
+    const decrementPage = () => { setSearchParams({ ...searchParams, "page": String(page - 1) }); }
 
     const [products, setProducts] = useState<any[]>([]);
     const [loading, setLoding] = useState<boolean>(false);
@@ -29,12 +35,15 @@ const ProductList: FC = () => {
         limit: PAGINATION_LIMIT
     });
 
+
     useEffect(() => {
         init();
-    }, []);
+    }, [contact, page]);
 
     const init = async () => {
-        loadProducts();
+        const offset = (page - 1) * PAGINATION_LIMIT;
+        const queryParams = { contact, offset };
+        loadProducts(queryParams);
     }
 
     const loadProducts = async (queryParams?: Record<string, any>) => {
@@ -63,29 +72,15 @@ const ProductList: FC = () => {
         setLoding(false);
     }
 
-    const handleNext = (next: UrlType) => {
-        if (next === null) {
-            return;
-        }
-        let query = getQueryFromUrl(next);
-        loadProducts(query);
-    }
-
-    const handlePrev = (prev: UrlType) => {
-        if (prev === null) {
-            return;
-        }
-        let query = getQueryFromUrl(prev);
-        loadProducts(query);
-    }
     return (
         <>
-            <div style={{ marginBottom: '1rem' }}>
+            <div style={{ marginBottom: '1rem', display: 'flex', alignItems: 'center' }}>
                 <Heading
                     titleLevel={2}
                 >
                     Products
                 </Heading>
+                <SearchByContact />
             </div>
             <div
                 style={{
@@ -110,10 +105,11 @@ const ProductList: FC = () => {
                         </div>
                         <div>
                             <Pagination
+                                loading={loading}
                                 next={pagination.next}
                                 prev={pagination.prev}
-                                onNextClick={handleNext}
-                                onPrevClick={handlePrev}
+                                onNextClick={incrementPage}
+                                onPrevClick={decrementPage}
                             />
                         </div>
                     </div>
@@ -126,8 +122,11 @@ const ProductList: FC = () => {
                 </div>
                 <div>
                     <Pagination
+                        loading={loading}
                         next={pagination.next}
                         prev={pagination.prev}
+                        onNextClick={incrementPage}
+                        onPrevClick={decrementPage}
                     />
                 </div>
             </div>
